@@ -7,7 +7,7 @@ module Redcar
 
       def initialize(project)
         @project = project
-        @storage = Plugin::BaseStorage.new "#{project.path}/.redcar", 'remember'
+        @storage = Plugin::BaseStorage.new "#{project.path}/.redcar/storage", 'remember'
       end
 
       def shell(window=self.project.window)
