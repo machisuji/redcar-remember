@@ -9,16 +9,17 @@ module Redcar
     end
 
     def self.save_settings(bounds)
-      last_bounds = bounds
+      self.last_bounds = bounds
       storage.save
     end
 
     def self.last_bounds=(rect)
-      b = storage["bounds"]
+      b = storage["bounds"] = {}
       b["x"] = rect.x
       b["y"] = rect.y
       b["width"] = rect.width
       b["height"] = rect.height
+      b
     end
 
     def self.last_bounds
