@@ -3,9 +3,29 @@ module Redcar
 
     def self.storage(path=nil)
       if path
-        @storage ||= Plugin::BaseStorage.new path, 'remember'
+        @storage ||= Plugin::BaseStorage.new "#{path}/.redcar", 'remember'
       end
       @storage
+    end
+
+    def self.save_settings(bounds)
+      last_bounds = bounds
+      storage.save
+    end
+
+    def self.last_bounds=(rect)
+      b = storage["bounds"]
+      b["x"] = rect.x
+      b["y"] = rect.y
+      b["width"] = rect.width
+      b["height"] = rect.height
+    end
+
+    def self.last_bounds
+      return unless storage["bounds"]
+      rect = storage["bounds"]
+      Java::OrgEclipseSwtGraphics::Rectangle.new(
+        rect["x"], rect["y"], rect["width"], rect["height"])
     end
 
     def self.menus
@@ -19,7 +39,7 @@ module Redcar
     end
 
     def self.loaded
-      puts "LOADED REMEMBER"
+      # puts "LOADED REMEMBER"
     end
 
     def self.first_call
@@ -32,23 +52,25 @@ module Redcar
 
     def self.project_loaded(project)
       storage(project.path)
-      puts "opened #{project.inspect}"
-      puts "project path: #{project.path}"
-      shell = project.window.controller.shell
-      shell.setLocation(0, 0)
+      last_bounds.tap do |bounds|
+        restore_bounds(project.window, bounds) if bounds
+      end
     end
 
     def self.project_closed(project, window)
-      pos = window.controller.shell.getLocation()
-      puts "closed #{project.inspect}"
-      puts "last position: #{pos.x}x#{pos.y}"
+      shell = window.controller.shell
+      save_settings(shell.getBounds())
+    end
+
+    def self.restore_bounds(window, bounds)
+      shell = window.controller.shell
+      shell.setBounds(bounds)
     end
 
     class ApplicationEventHandler
       def window_focus(win)
-        puts "window_focus: #{win.inspect}"
-        if Remember.first_call
-          # for everything to look smooth I'd have to set the window bounds
+        # if Remember.first_call
+          # For everything to look smooth I'd have to set the window bounds
           # here, however at this point I cannot get the current path,
           # which I need to save settings on a per-project basis.
           #
@@ -57,7 +79,7 @@ module Redcar
           #
           # shell = Redcar.app.focussed_window.controller.shell
           # shell.setLocation(0, 0)
-        end
+        # end
       end
     end
 
