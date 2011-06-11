@@ -49,16 +49,6 @@ module Redcar
       @memories ||= []
     end
 
-    def self.menus
-      Menu::Builder.build do
-        sub_menu "Plugins" do
-          sub_menu "Remember", :priority => 139 do
-            item "Settings", Settings
-          end
-        end
-      end
-    end
-
     def self.loaded
       # puts "LOADED REMEMBER"
     end
@@ -89,12 +79,6 @@ module Redcar
 
     def self.application_event_handler
       ApplicationEventHandler.new
-    end
-
-    class Settings < Redcar::Command
-      def execute
-        Application::Dialog.message_box("Settings")
-      end
     end
 
   end
