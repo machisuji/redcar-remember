@@ -36,12 +36,12 @@ module Redcar
       private
 
       def last_bounds=(rect)
-        b = storage["bounds"] = {}
-        b["x"] = rect.x
-        b["y"] = rect.y
-        b["width"] = rect.width
-        b["height"] = rect.height
-        b
+        storage["bounds"] = {
+          "x"      => rect.x,
+          "y"      => rect.y,
+          "width"  => rect.width,
+          "height" => rect.height
+        }
       end
     end
 
