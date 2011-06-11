@@ -1,32 +1,52 @@
 module Redcar
   class Remember
 
-    def self.storage(path=nil)
-      if path
-        @storage ||= Plugin::BaseStorage.new "#{path}/.redcar", 'remember'
+    class Memory
+
+      attr_reader :project, :storage
+
+      def initialize(project)
+        @project = project
+        @storage = Plugin::BaseStorage.new "#{project.path}/.redcar", 'remember'
       end
-      @storage
+
+      def shell(window=self.project.window)
+        window.controller.shell
+      end
+
+      def last_bounds
+        return unless storage["bounds"]
+        rect = storage["bounds"]
+        Java::OrgEclipseSwtGraphics::Rectangle.new(
+          rect["x"], rect["y"], rect["width"], rect["height"])
+      end
+
+      def save(window)
+        self.last_bounds = shell(window).getBounds()
+        storage.save
+      end
+
+      def recall
+        last_bounds.tap do |bounds|
+          shell.setBounds(bounds) if bounds
+        end
+        self
+      end
+
+      private
+
+      def last_bounds=(rect)
+        b = storage["bounds"] = {}
+        b["x"] = rect.x
+        b["y"] = rect.y
+        b["width"] = rect.width
+        b["height"] = rect.height
+        b
+      end
     end
 
-    def self.save_settings(bounds)
-      self.last_bounds = bounds
-      storage.save
-    end
-
-    def self.last_bounds=(rect)
-      b = storage["bounds"] = {}
-      b["x"] = rect.x
-      b["y"] = rect.y
-      b["width"] = rect.width
-      b["height"] = rect.height
-      b
-    end
-
-    def self.last_bounds
-      return unless storage["bounds"]
-      rect = storage["bounds"]
-      Java::OrgEclipseSwtGraphics::Rectangle.new(
-        rect["x"], rect["y"], rect["width"], rect["height"])
+    def self.memories
+      @memories ||= []
     end
 
     def self.menus
@@ -43,29 +63,12 @@ module Redcar
       # puts "LOADED REMEMBER"
     end
 
-    def self.first_call
-      unless @not_first
-        @not_first = true
-      else
-        false
-      end
-    end
-
     def self.project_loaded(project)
-      storage(project.path)
-      last_bounds.tap do |bounds|
-        restore_bounds(project.window, bounds) if bounds
-      end
+      memories << Memory.new(project).recall
     end
 
     def self.project_closed(project, window)
-      shell = window.controller.shell
-      save_settings(shell.getBounds())
-    end
-
-    def self.restore_bounds(window, bounds)
-      shell = window.controller.shell
-      shell.setBounds(bounds)
+      memories.find_all { |m| m.project == project }.each { |m| m.save window }
     end
 
     class ApplicationEventHandler
