@@ -32,7 +32,7 @@ module Redcar
     def self.menus
       Menu::Builder.build do
         sub_menu "Plugins" do
-          sub_menu "Settings", :priority => 139 do
+          sub_menu "Remember", :priority => 139 do
             item "Settings", Settings
           end
         end
