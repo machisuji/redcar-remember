@@ -9,7 +9,6 @@ At the moment merely the following is saved:
 
 ### To do
 * project tree width
-* opened files
 
 ## Installation
 
