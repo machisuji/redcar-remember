@@ -2,11 +2,12 @@
 
 Saves state for a Redcar project when it is closed and restores this state when the project is opened again.
 
-## Features
+### Features
 At the moment merely the following is saved:
+
 * window bounds
 
-## To do
+### To do
 * project tree width
 * opened files
 
