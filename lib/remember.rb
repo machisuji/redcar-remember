@@ -2,7 +2,6 @@ module Redcar
   class Remember
 
     class Memory
-
       attr_reader :project, :storage
 
       def initialize(project)
@@ -49,36 +48,12 @@ module Redcar
       @memories ||= []
     end
 
-    def self.loaded
-      # puts "LOADED REMEMBER"
-    end
-
     def self.project_loaded(project)
       memories << Memory.new(project).recall
     end
 
     def self.project_closed(project, window)
       memories.find_all { |m| m.project == project }.each { |m| m.save window }
-    end
-
-    class ApplicationEventHandler
-      def window_focus(win)
-        # if Remember.first_call
-          # For everything to look smooth I'd have to set the window bounds
-          # here, however at this point I cannot get the current path,
-          # which I need to save settings on a per-project basis.
-          #
-          # I don't want to mess with other plugins (redcar.rb) for now
-          # to change this.
-          #
-          # shell = Redcar.app.focussed_window.controller.shell
-          # shell.setLocation(0, 0)
-        # end
-      end
-    end
-
-    def self.application_event_handler
-      ApplicationEventHandler.new
     end
 
   end
