@@ -1,4 +1,13 @@
 module Redcar
+
+  class ApplicationSWT
+    class Window
+      def sash
+        @sash
+      end
+    end
+  end
+
   class Remember
 
     class Memory
@@ -7,10 +16,17 @@ module Redcar
       def initialize(project)
         @project = project
         @storage = Plugin::BaseStorage.new "#{project.path}/.redcar/storage", 'remember'
+        sash.add_selection_listener do |e|
+          @current_tree_width = e.x
+        end
       end
 
       def shell(window=self.project.window)
         window.controller.shell
+      end
+
+      def sash(window=self.project.window)
+        window.controller.sash
       end
 
       def last_bounds
@@ -20,14 +36,24 @@ module Redcar
           rect["x"], rect["y"], rect["width"], rect["height"])
       end
 
+      def tree_width
+        return unless storage["tree_width"]
+        storage["tree_width"].to_i
+      end
+
       def save(window)
-        self.last_bounds = shell(window).getBounds()
+        self.last_bounds = shell(window).getBounds
+        storage["tree_width"] = @current_tree_width if @current_tree_width
         storage.save
       end
 
       def recall
-        last_bounds.tap do |bounds|
-          shell.setBounds(bounds) if bounds
+        if last_bounds
+          shell.setBounds last_bounds
+        end
+        if tree_width
+          sash.layout_data.left = Swt::Layout::FormAttachment.new 0, tree_width
+          shell.layout
         end
         self
       end
