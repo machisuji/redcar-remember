@@ -79,7 +79,9 @@ module Redcar
     end
 
     def self.project_closed(project, window)
-      memories.find_all { |m| m.project == project }.each { |m| m.save window }
+      memories.reject! do |mem|
+        mem.save window if mem.project == project
+      end
     end
 
   end
