@@ -8,7 +8,11 @@ The following data are saved:
 * window bounds
 * project tree width
 
+### Todo
+* Save Speedbar settings per file type (per project or globally).
+
 ## Installation
 
     cd ~/.redcar/plugins
     git clone git://github.com/machisuji/redcar-remember.git remember
+
